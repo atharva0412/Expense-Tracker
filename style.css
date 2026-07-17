@@ -1,7 +1,3 @@
-/* ==========================================
-   WealthFlow - Premium Design System (CSS)
-   ========================================== */
-
 /* Design Tokens & Theme Variables */
 :root[data-theme="light"] {
     --bg-primary: #f3f4f6;
