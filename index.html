@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Expense Tracker</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="logo">
+                <i class="fa-solid fa-wallet"></i>
+                <h1>WealthFlow</h1>
+            </div>
+            <div class="header-actions">
+                <button id="shortcuts-btn" title="Keyboard Shortcuts (Ctrl+/)">
+                    <i class="fa-solid fa-keyboard"></i>
+                    <span>Shortcuts</span>
+                </button>
+                <button id="theme-btn" title="Toggle Theme (Ctrl+Shift+D)">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Grid -->
+        <main class="dashboard-grid">
+            
+            <!-- Left Panel: Balance, Budget, Form -->
+            <section class="panel-left">
+                <!-- Balance Summary Card -->
+                <div class="card balance-card">
+                    <div class="card-header">
+                        <span>Total Balance</span>
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <h2 id="balance" class="balance-amount">₹0.00</h2>
+                    <div class="balance-details">
+                        <div class="detail-item income">
+                            <div class="detail-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                            <div>
+                                <span>Income</span>
+                                <h3 id="income">₹0.00</h3>
+                            </div>
+                        </div>
+                        <div class="detail-item expense">
+                            <div class="detail-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+                            <div>
+                                <span>Expense</span>
+                                <h3 id="expense">₹0.00</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Budget Limit Card -->
+                <div class="card budget-card">
+                    <div class="card-header">
+                        <span>Monthly Budget Limit</span>
+                        <i class="fa-solid fa-piggy-bank"></i>
+                    </div>
+                    <div class="budget-input-group">
+                        <input type="number" id="budget-limit" placeholder="Set budget limit (e.g. 20000)">
+                        <button id="set-budget-btn">Set</button>
+                    </div>
+                    <div class="budget-progress-container">
+                        <div class="budget-stats">
+                            <span>Spent: <strong id="budget-spent">₹0.00</strong></span>
+                            <span>Remaining: <strong id="budget-remaining">₹0.00</strong></span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="budget-progress-bar" class="progress-bar-fill animate-progress"></div>
+                        </div>
+                        <span id="budget-percentage" class="percentage-label">0% of budget spent</span>
+                    </div>
+                </div>
+
+                <!-- Add/Edit Transaction Card -->
+                <div class="card form-card">
+                    <div class="card-header">
+                        <span id="form-title">Add New Transaction</span>
+                        <i class="fa-solid fa-circle-plus"></i>
+                    </div>
+                    <form id="transaction-form" onsubmit="return false;">
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="type">Type</label>
+                                <select id="type">
+                                    <option value="expense" selected>Expense</option>
+                                    <option value="income">Income</option>
+                                </select>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="category">Category</label>
+                                <select id="category">
+                                    <!-- Dynamic options based on type -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="text">Title / Description</label>
+                            <div class="input-icon-wrapper">
+                                <i class="fa-solid fa-pen-to-square input-icon"></i>
+                                <input type="text" id="text" placeholder="Enter title (e.g., Grocery shopping)" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group flex-1">
+                                <label for="amount">Amount (₹)</label>
+                                <div class="input-icon-wrapper">
+                                    <i class="fa-solid fa-indian-rupee-sign input-icon"></i>
+                                    <input type="number" id="amount" placeholder="Enter amount" min="0.01" step="0.01" required>
+                                </div>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="date">Date</label>
+                                <input type="date" id="date" required>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button id="addBtn" type="submit" class="btn btn-primary">Add Transaction</button>
+                            <button id="cancel-edit-btn" type="button" class="btn btn-secondary hidden">Cancel Edit</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Right Panel: Analytics & History -->
+            <section class="panel-right">
+                <!-- Analytics Card -->
+                <div class="card analytics-card">
+                    <div class="card-header">
+                        <span>Expense Distribution</span>
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="expenseChart"></canvas>
+                        <div id="chart-placeholder" class="chart-placeholder hidden">
+                            <i class="fa-solid fa-chart-line"></i>
+                            <p>No expense data available to visualize.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History / Transactions List Card -->
+                <div class="card history-card">
+                    <div class="card-header">
+                        <span>Transaction History</span>
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                    
+                    <!-- Search & Filter Controls -->
+                    <div class="filters-container">
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="search" placeholder="Search title...">
+                        </div>
+                        <div class="filters-row">
+                            <select id="filter-type" title="Filter by Type">
+                                <option value="all">All Types</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expenses</option>
+                            </select>
+                            <select id="filter-category" title="Filter by Category">
+                                <option value="all">All Categories</option>
+                                <!-- Dynamic options based on loaded transactions categories -->
+                            </select>
+                            <select id="sort-by" title="Sort By">
+                                <option value="date-desc">Date (Newest First)</option>
+                                <option value="date-asc">Date (Oldest First)</option>
+                                <option value="amount-desc">Amount (Highest First)</option>
+                                <option value="amount-asc">Amount (Lowest First)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- History Actions -->
+                    <div class="history-actions">
+                        <button id="export-csv-btn" class="btn-outline" title="Export to CSV (Ctrl+Shift+E)">
+                            <i class="fa-solid fa-file-csv"></i>
+                            <span>Export CSV</span>
+                        </button>
+                        <button id="clear-all-btn" class="btn-outline btn-danger" title="Clear all history">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span>Clear All</span>
+                        </button>
+                    </div>
+
+                    <!-- Transactions List -->
+                    <ul id="list" class="transactions-list">
+                        <!-- Dynamic list items -->
+                    </ul>
+                    
+                    <div id="no-transactions" class="no-data hidden">
+                        <i class="fa-solid fa-inbox"></i>
+                        <p>No transactions found matching the filters.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div id="shortcuts-modal" class="modal-overlay hidden">
+        <div class="modal-content animate-slide-down">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-keyboard"></i> Keyboard Shortcuts</h3>
+                <button id="close-shortcuts-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcut-item">
+                    <span class="keys"><kbd>Alt</kbd> + <kbd>N</kbd></span>
+                    <span class="description">Focus title input (Add Transaction)</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="keys"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd></span>
+                    <span class="description">Toggle Dark Mode</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="keys"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd></span>
+                    <span class="description">Export transaction history to CSV</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="keys"><kbd>Esc</kbd></span>
+                    <span class="description">Close modals / Cancel editing transaction</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="keys"><kbd>Ctrl</kbd> + <kbd>/</kbd></span>
+                    <span class="description">Show/hide keyboard shortcuts cheat sheet</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+</body>
+</html>
